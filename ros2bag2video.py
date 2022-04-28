@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2021 Bey Hao Yun.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,7 +30,9 @@ try:
     from theora_image_transport.msg import Packet
 except Exception:
     pass
-from rosbag2_transport import rosbag2_transport_py
+# from rosbag2_transport import rosbag2_transport_py
+# rosbag
+# import rosbag2_py
 from ros2bag.api import check_path_exists
 from ros2cli.node import NODE_NAME_PREFIX
 from argparse import FileType
@@ -137,6 +141,7 @@ class RosVideoWriter(Node):
             self.listener_callback,
             10)
 
+        # Doesn't even use ros2 bag api.
         p1 = subprocess.Popen(['ros2',
                                'bag',
                                'play',
@@ -230,7 +235,7 @@ class RosVideoWriter(Node):
                 msg_fmt = 'bayer_bggr8'
             elif msg_encoding.find('rggb8') != -1:
                 pix_fmt = 'bayer_rggb8'
-                msg_fmt = 'bayer_bggr8'
+                msg_fmt = 'bayer_rggb8'
             elif msg_encoding.find('rgb8') != -1:
                 pix_fmt = 'rgb24'
                 msg_fmt = 'bgr8'
@@ -329,8 +334,8 @@ class RosVideoWriter(Node):
                                    self.opt_out_file,
                                    '-y'])
             p1.communicate()
-            args = ('rm', '*.png')
-            p2 = subprocess.call('%s %s' % args, shell=True)
+            # args = ('rm', '*.png')
+            # p2 = subprocess.call('%s %s' % args, shell=True)
             print('Writing to output file, ' + self.opt_out_file)
             sys.exit()
         else:
