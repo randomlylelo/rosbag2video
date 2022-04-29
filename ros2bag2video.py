@@ -17,6 +17,7 @@
 
 import os
 import sys
+from datetime import datetime
 import cv2
 import rclpy
 import getopt
@@ -126,11 +127,11 @@ class RosVideoWriter(Node):
                                 stdout=subprocess.PIPE)
         rosbag2_info = str(proc.stdout.read(), 'utf-8').splitlines()
 
-        self.msgfmt_literal, self.count = self.get_topic_info(rosbag2_info)
+        self.msgfmt_literal, self.count, self.start_date = self.get_topic_info(rosbag2_info)
         self.msgtype = self.filter_image_msgs(self.msgfmt_literal)
 
         # DEBUG
-        # print(self.rosbag2_info)
+        # print(rosbag2_info)
         # print("msgfmt_literal = ", self.msgfmt_literal)
         # print("count = ", self.count)
         # print("serialtype = ", self.serialtype)
@@ -268,14 +269,22 @@ class RosVideoWriter(Node):
     '''
     def get_topic_info(self, rosbag2_info):
 
+        start_date = ''
         msgtype = ''
         count = 0
         serialtype = ''  # Unused
 
         for line in rosbag2_info:
+            if 'Start' in line:
+                parse_line = line.split()
+                # get timestamp and remove () from string.
+                timestamp = datetime.fromtimestamp(float((parse_line[-1])[1:-1]))
+                start_date = timestamp.strftime("%Y_%m_%d-%H_%M_%S")
+
             if self.opt_topic in line:
                 parse_line = line.split()
                 for word_index in range(0, len(parse_line)):
+                    # print(parse_line[word_index])
                     if 'Type:' in parse_line[word_index]:
                         msgtype = parse_line[word_index+1]
                     if 'Count:' in parse_line[word_index]:
@@ -283,7 +292,7 @@ class RosVideoWriter(Node):
                     if 'Serialization' in parse_line[word_index]:
                         serialtype = parse_line[word_index+2]
 
-        return msgtype, count
+        return msgtype, count, start_date
 
     '''
     The Subscriber Callback.
@@ -311,7 +320,7 @@ class RosVideoWriter(Node):
         # img = self.bridge.imgmsg_to_cv2(msg, self.msg_fmt)
         img = self.bridge.imgmsg_to_cv2(msg, "rgb8")
 
-        filename = str(self.frame_no).zfill(3) + '.png'
+        filename = str(self.frame_no).zfill(4) + '_' + self.start_date + '.png'
         cv2.imwrite(filename, img)
 
         '''
