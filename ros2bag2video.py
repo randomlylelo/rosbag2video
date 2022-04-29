@@ -308,7 +308,8 @@ class RosVideoWriter(Node):
         if msg.encoding.find('16UC1') != -1:
             msg.encoding = 'mono16'
 
-        img = self.bridge.imgmsg_to_cv2(msg, self.msg_fmt)
+        # img = self.bridge.imgmsg_to_cv2(msg, self.msg_fmt)
+        img = self.bridge.imgmsg_to_cv2(msg, "rgb8")
 
         filename = str(self.frame_no).zfill(3) + '.png'
         cv2.imwrite(filename, img)
@@ -322,7 +323,7 @@ class RosVideoWriter(Node):
         if self.frame_no == self.count:
             p1 = subprocess.Popen([VIDEO_CONVERTER_TO_USE,
                                   '-framerate',
-                                   str(self.fps),
+                                   '30',
                                    '-pattern_type',
                                    'glob',
                                    '-i',
@@ -330,8 +331,8 @@ class RosVideoWriter(Node):
                                    '-c:v',
                                    'libx264',
                                    '-pix_fmt',
-                                   self.pix_fmt,
-                                   self.opt_out_file,
+                                   'yuv420p',
+                                   'output.mp4',
                                    '-y'])
             p1.communicate()
             # args = ('rm', '*.png')
