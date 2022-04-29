@@ -319,7 +319,7 @@ class RosVideoWriter(Node):
 
         # Switch bt colored and uncolored:
         # img = self.bridge.imgmsg_to_cv2(msg, self.msg_fmt)
-        img = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+        img = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
         if(not os.path.isdir(self.start_date)):
             os.mkdir(self.start_date)
