@@ -317,10 +317,13 @@ class RosVideoWriter(Node):
         if msg.encoding.find('16UC1') != -1:
             msg.encoding = 'mono16'
 
+        # Switch bt colored and uncolored:
         # img = self.bridge.imgmsg_to_cv2(msg, self.msg_fmt)
         img = self.bridge.imgmsg_to_cv2(msg, "rgb8")
 
-        filename = str(self.frame_no).zfill(4) + '_' + self.start_date + '.png'
+        if(not os.path.isdir(self.start_date)):
+            os.mkdir(self.start_date)
+        filename = f'./{self.start_date}/{str(self.frame_no).zfill(4)}_{self.start_date}.png'
         cv2.imwrite(filename, img)
 
         '''
@@ -336,12 +339,12 @@ class RosVideoWriter(Node):
                                    '-pattern_type',
                                    'glob',
                                    '-i',
-                                   '*.png',
+                                   f'./{self.start_date}/*.png',
                                    '-c:v',
                                    'libx264',
                                    '-pix_fmt',
                                    'yuv420p',
-                                   'output.mp4',
+                                   f'./{self.start_date}/video_{self.start_date}.mp4',
                                    '-y'])
             p1.communicate()
             # args = ('rm', '*.png')
